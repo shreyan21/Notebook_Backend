@@ -16,10 +16,10 @@
   },
   "name": "backend",
   "version": "1.0.0",
-  "main": "node api/index.js",
+  "main": "node index.js",
   "type": "module",
   "scripts": {
-    "start": "node api/index.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",

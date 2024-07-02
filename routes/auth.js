@@ -13,6 +13,7 @@ const validateInputs = [
     body('email', 'Invalid email address').isEmail(),
     body('password', 'Password must be atleast 8 characters long').isLength({ min: 8 }),
 ];
+
 router.post('/create', validateInputs, async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const secPass = await bcrypt.hash(req.body.password, salt)
