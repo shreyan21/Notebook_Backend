@@ -1,7 +1,7 @@
 import express from 'express'
-import router1 from '../routes/auth.js'
-import router2 from '../routes/fetchAllNotes.js'
-import run from '../db.js'
+import router1 from './routes/auth.js'
+import router2 from './routes/fetchAllNotes.js'
+import run from './db.js'
 import cors from 'cors'
 import dotenv from 'dotenv'
 

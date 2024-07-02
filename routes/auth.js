@@ -1,4 +1,4 @@
-import { Router, json } from 'express'
+import { Router } from 'express'
 import User from '../models/User.js'
 import bcrypt from 'bcryptjs'
 import verifyToken from '../middleware/middle.js'
