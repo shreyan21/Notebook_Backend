@@ -95,8 +95,19 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
 
     })
 
+router.post('/checkmail',async(req,res)=>{
+  const x= await User.findOne({email:req.body.email})
+  if(x){
+    res.send(true)
+
+  }
+  else{
+    res.send(false)
+  }
+})
+
+
 router.delete('/remove', verifyToken, async (req, res) => {
-    // const options = { notFound: 'Document not found' }
     try {
            
            
