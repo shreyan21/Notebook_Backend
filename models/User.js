@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import Notes from "./Notes";
+import Notes from "./Notes.js";
 const UserSchema = new Schema({ name: { type: String, required: true },
 
    email:{type:String,unique:true,required:true},
