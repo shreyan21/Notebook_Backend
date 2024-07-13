@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import Notes from "./Notes";
 const UserSchema = new Schema({ name: { type: String, required: true },
 
    email:{type:String,unique:true,required:true},
@@ -8,15 +9,11 @@ const UserSchema = new Schema({ name: { type: String, required: true },
    date:{type:Date,default:Date.now}
 }) 
 
-UserSchema.pre('remove', function(next) {
-   const user = this;
-   // Remove all notes that belong to this user
-   Note.deleteMany({ user: user._id }, (err) => {
-       if (err) {
-           return next(err);
-       }
-       next();
-   });
+UserSchema.pre('deleteOne',{document:false,query:true}, async function(next) {
+
+    const data=await this.model.findOne(this.getQuery())
+    await Notes.deleteMany({user:data._id})
+
 });
 
 export default mongoose.model('User',UserSchema)
