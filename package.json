@@ -19,7 +19,8 @@
   "main": "api/index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon api/index.js"
+    "start": "nodemon api/index.js",
+    "vercel":"vercel"
   },
   "keywords": [],
   "author": "",
