@@ -98,11 +98,11 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
 router.post('/checkmail',async(req,res)=>{
   const x= await User.findOne({email:req.body.email})
   if(x){
-    res.send(true)
+    res.json({exists:true})
 
   }
   else{
-    res.send(false)
+    res.json({exists:false})
   }
 })
 
