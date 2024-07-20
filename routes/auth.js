@@ -5,6 +5,8 @@ import verifyToken from '../middleware/middle.js'
 import { validationResult, body } from 'express-validator'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
+import { upload } from '../utils/upload.js'
+import { uploadToCloudinary } from '../utils/cloudinary.js'
 const router = Router()
 dotenv.config()
 const validateInputs = [
@@ -13,7 +15,7 @@ const validateInputs = [
     body('password', 'Password must be atleast 8 characters long').isLength({ min: 8 }),
 ];
 
-router.post('/create', validateInputs, async (req, res) => {
+router.post('/create', upload.single('image'), validateInputs, async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const secPass = await bcrypt.hash(req.body.password, salt)
     const errors = validationResult(req);
@@ -26,7 +28,8 @@ router.post('/create', validateInputs, async (req, res) => {
         return res.status(409).json({ message: "email already exists" })
     }
     // const user = new User(req.body)  
-    const user = await User.create({ name: req.body.name, email: req.body.email, password: secPass })
+    const result = await uploadToCloudinary(req.file.path)
+    const user = await User.create({ name: req.body.name, email: req.body.email, password: secPass, avatar: { publicId: result.public_id, url: result.url } })
     let code;
     let message;
     try {
@@ -78,7 +81,8 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
                     user: {
                         id: user.id,
                         name: user.name,
-                        email: req.body.email
+                        email: req.body.email,
+                        avatar:user.avatar
                     }
                 }
                 const authtoken = jwt.sign(data, process.env.JWT_SECRET)
@@ -95,31 +99,31 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
 
     })
 
-router.post('/checkmail',async(req,res)=>{
-  const x= await User.findOne({email:req.body.email})
-  if(x){
-    res.json({exists:true})
+router.post('/checkmail', async (req, res) => {
+    const x = await User.findOne({ email: req.body.email })
+    if (x) {
+        res.json({ exists: true })
 
-  }
-  else{
-    res.json({exists:false})
-  }
+    }
+    else {
+        res.json({ exists: false })
+    }
 })
 
 
 router.delete('/remove', verifyToken, async (req, res) => {
     try {
-           
-           
-           
-        
-       await User.deleteOne({_id:req.body.id})
-       res.status(200).json({message:"User deleted"})
+
+
+
+
+        await User.deleteOne({ _id: req.body.id })
+        res.status(200).json({ message: "User deleted" })
 
 
     }
     catch (err) {
-        return res.status(500).json({err})
+        return res.status(500).json({ err })
     }
 })
 
