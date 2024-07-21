@@ -30,17 +30,11 @@ router.post('/create', upload.single('image'),  async (req, res) => {
     // const user = new User(req.body)  
     // const result = await uploadToCloudinary(req.file.path)
 
-    const user = await User.create({ name: req.body.name, email: req.body.email, password: secPass,avatar:{
+    try{
+     await User.create({ name: req.body.name, email: req.body.email, password: secPass,avatar:{
         url:req.file.path,publicId:req.file.filename
     } })
-    let code;
-    let message;
-    try {
-        await user.save()
-
-        code = 201
-        message = "Created"
-
+  
     }
     catch (e) {
         code = 500
@@ -85,11 +79,10 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
                         id: user.id,
                         name: user.name,
                         email: req.body.email,
-                        avatar:user.avatar.url
                     }
                 }
                 const authtoken = jwt.sign(data, process.env.JWT_SECRET)
-                return res.status(200).json({ 'authtoken': authtoken })
+                return res.status(200).json({ 'authtoken': authtoken,avatar:user.avatar.url })
             }
             else {
 
