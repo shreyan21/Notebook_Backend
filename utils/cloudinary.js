@@ -1,8 +1,8 @@
-import {v2 as cloudinary} from "cloudinary"
-
+// import {v2 as cloudinary} from "cloudinary"s
+import {CloudinaryStorage} from 'multer-storage-cloudinary'
 import dotenv from "dotenv"
-import fs from "fs"
-
+import multer from 'multer'
+import { v2 as cloudinary } from 'cloudinary'
 dotenv.config() 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -10,29 +10,13 @@ cloudinary.config({
   api_secret: process.env.API_SECRET
 })
 
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'profile-images', // Specify the folder name in Cloudinary
+  // supports promises as well
+    public_id: (req, file) => `image_${Date.now()}`
+  },
+});
 
-
-const uploadToCloudinary = async (localfilepath) => {
-
-    try {
-      if (!localfilepath) {
-        return null
-      }
-      const res = await cloudinary.uploader
-        .upload(
-          localfilepath, {
-          resource_type: "auto"
-        },
-        )
-      fs.unlinkSync(localfilepath)
-      return res
-    }
-    catch (e) {
-  
-      fs.unlinkSync(localfilepath)
-      return null
-    }
-  
-  }
-
-  export {uploadToCloudinary}
+export const upload = multer({ storage: storage });

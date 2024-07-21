@@ -5,8 +5,8 @@ import verifyToken from '../middleware/middle.js'
 import { validationResult, body } from 'express-validator'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
-import { upload } from '../utils/upload.js'
-import { uploadToCloudinary } from '../utils/cloudinary.js'
+import { upload } from '../utils/cloudinary.js'
+
 const router = Router()
 dotenv.config()
 const validateInputs = [
@@ -15,7 +15,7 @@ const validateInputs = [
     body('password', 'Password must be atleast 8 characters long').isLength({ min: 8 }),
 ];
 
-router.post('/create', upload.single('image'), validateInputs, async (req, res) => {
+router.post('/create', upload.single('image'),  async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const secPass = await bcrypt.hash(req.body.password, salt)
     const errors = validationResult(req);
@@ -28,8 +28,11 @@ router.post('/create', upload.single('image'), validateInputs, async (req, res) 
         return res.status(409).json({ message: "email already exists" })
     }
     // const user = new User(req.body)  
-    const result = await uploadToCloudinary(req.file.path)
-    const user = await User.create({ name: req.body.name, email: req.body.email, password: secPass, avatar: { publicId: result.public_id, url: result.url } })
+    // const result = await uploadToCloudinary(req.file.path)
+
+    const user = await User.create({ name: req.body.name, email: req.body.email, password: secPass,avatar:{
+        url:req.file.path,publicId:req.file.filename
+    } })
     let code;
     let message;
     try {
@@ -82,7 +85,7 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
                         id: user.id,
                         name: user.name,
                         email: req.body.email,
-                        avatar:user.avatar
+                        avatar:user.avatar.url
                     }
                 }
                 const authtoken = jwt.sign(data, process.env.JWT_SECRET)

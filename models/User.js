@@ -9,7 +9,7 @@ const UserSchema = new Schema({
    
    date:{type:Date,default:Date.now},
    avatar:{
-    publicId:{type:Number},
+    publicId:{type:String},
     url:{type:String}
    }
 
