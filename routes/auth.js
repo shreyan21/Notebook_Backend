@@ -27,12 +27,12 @@ router.post('/create', upload.single('image'),  async (req, res) => {
     if (x) {
         return res.status(409).json({ message: "email already exists" })
     }
-    // const user = new User(req.body)  
-    // const result = await uploadToCloudinary(req.file.path)
-
+  let avatarData={}
+  if(req.file){
+avatarData={url:req.file.path,publicId:req.file.filename}
+  }
     try{
-     await User.create({ name: req.body.name, email: req.body.email, password: secPass,avatar:{
-        url:req.file.path,publicId:req.file.filename
+     await User.create({ name: req.body.name, email: req.body.email, password: secPass,avatar:{avatarData
     } })
   
     }
