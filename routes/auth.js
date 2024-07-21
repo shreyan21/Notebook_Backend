@@ -6,7 +6,6 @@ import { validationResult, body } from 'express-validator'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import { upload } from '../utils/cloudinary.js'
-import { v2 as cloudinary } from 'cloudinary'
 
 const router = Router()
 dotenv.config()
@@ -115,8 +114,7 @@ router.delete('/remove', verifyToken, async (req, res) => {
     try {
 
 
-        const publicId = User.deleteOne({ _id: req.body.id })
-        await cloudinary.uploader.destroy({ publicId }).catch(e=>{})
+      
        
         await User.deleteOne({ _id: req.body.id })
         res.status(200).json({ message: "User deleted" })
