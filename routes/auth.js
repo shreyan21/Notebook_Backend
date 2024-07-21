@@ -6,6 +6,7 @@ import { validationResult, body } from 'express-validator'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import { upload } from '../utils/cloudinary.js'
+import { v2 as cloudinary } from 'cloudinary'
 
 const router = Router()
 dotenv.config()
@@ -15,7 +16,7 @@ const validateInputs = [
     body('password', 'Password must be atleast 8 characters long').isLength({ min: 8 }),
 ];
 
-router.post('/create', upload.single('image'),  async (req, res) => {
+router.post('/create', upload.single('image'), async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const secPass = await bcrypt.hash(req.body.password, salt)
     const errors = validationResult(req);
@@ -27,14 +28,17 @@ router.post('/create', upload.single('image'),  async (req, res) => {
     if (x) {
         return res.status(409).json({ message: "email already exists" })
     }
-  let avatarData={}
-  if(req.file){
-avatarData={url:req.file.path,publicId:req.file.filename}
-  }
-    try{
-     await User.create({ name: req.body.name, email: req.body.email, password: secPass,avatar:{avatarData
-    } })
-  
+    let avatarData = {}
+    if (req.file) {
+        avatarData = { url: req.file.path, publicId: req.file.filename }
+    }
+    try {
+        await User.create({
+            name: req.body.name, email: req.body.email, password: secPass, avatar: {
+                avatarData
+            }
+        })
+
     }
     catch (e) {
         code = 500
@@ -82,7 +86,7 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
                     }
                 }
                 const authtoken = jwt.sign(data, process.env.JWT_SECRET)
-                return res.status(200).json({ 'authtoken': authtoken,avatar:user.avatar.url })
+                return res.status(200).json({ 'authtoken': authtoken, avatar: user.avatar.url })
             }
             else {
 
@@ -111,8 +115,9 @@ router.delete('/remove', verifyToken, async (req, res) => {
     try {
 
 
-
-
+        const publicId = User.deleteOne({ _id: req.body.id })
+        await cloudinary.uploader.destroy({ publicId }).catch(e=>{})
+       
         await User.deleteOne({ _id: req.body.id })
         res.status(200).json({ message: "User deleted" })
 
