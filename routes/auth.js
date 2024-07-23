@@ -6,7 +6,7 @@ import { validationResult, body } from 'express-validator'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import { upload } from '../utils/cloudinary.js'
-import {v2 as cloudinary} from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary'
 
 const router = Router()
 dotenv.config()
@@ -34,9 +34,9 @@ router.post('/create', upload.single('image'), async (req, res) => {
     }
     try {
         await User.create({
-            name: req.body.name, email: req.body.email, password: secPass, avatar: 
+            name: req.body.name, email: req.body.email, password: secPass, avatar:
                 avatarData
-            
+
         })
 
     }
@@ -99,6 +99,29 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
 
     })
 
+router.put('/savechanges',verifyToken,upload.single('image'), async (req, res) => {
+    try {
+        const { id, name, email } = req.body
+        const user = await User.findById(id)
+        user.email = email
+        user.name = name
+        if(req.file){
+
+            let avatar ={
+                publicId:req.file.filename,
+                url:req.file.url
+            }
+            user.avatar=avatar
+        }
+        await user.save()
+        return res.status(200).json({message:"Sucessfully saved"})
+
+    }
+    catch (e) {
+        return res.status(500).json({error:'internal server error'})
+    }
+})
+
 router.post('/checkmail', async (req, res) => {
     const x = await User.findOne({ email: req.body.email })
     if (x) {
@@ -115,8 +138,8 @@ router.delete('/remove', verifyToken, async (req, res) => {
     try {
 
 
-       const publicId=User.findById(req.body.id)
-       await cloudinary.uploader.destroy(publicId).catch(e=>{})
+        const publicId = User.findById(req.body.id)
+        await cloudinary.uploader.destroy(publicId).catch(e => { })
         await User.deleteOne({ _id: req.body.id })
         res.status(200).json({ message: "User deleted" })
 
