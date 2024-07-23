@@ -108,7 +108,7 @@ router.put('/savechanges', verifyToken, upload.single('image'), async (req, res)
         user.name = name
         const data = {
 
-            user: { _id: id, name, email, }
+            user: { id, name, email, }
         }
 
 
