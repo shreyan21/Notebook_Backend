@@ -126,7 +126,7 @@ router.put('/savechanges', verifyToken, upload.single('image'), async (req, res)
 
         const result = await user.save()
         const authtoken=jwt.sign(data,process.env.JWT_SECRET)
-        return res.status(200).json({ result ,authtoken})
+        return res.status(200).json({ result ,'authtoken':authtoken})
 
     }
     catch (e) {
