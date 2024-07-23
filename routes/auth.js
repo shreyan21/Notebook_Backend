@@ -7,6 +7,7 @@ import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import { upload } from '../utils/cloudinary.js'
 import { v2 as cloudinary } from 'cloudinary'
+import { jwtDecode } from 'jwt-decode'
 
 const router = Router()
 dotenv.config()
@@ -99,26 +100,37 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
 
     })
 
-router.put('/savechanges',verifyToken,upload.single('image'), async (req, res) => {
+router.put('/savechanges', verifyToken, upload.single('image'), async (req, res) => {
     try {
         const { id, name, email } = req.body
         const user = await User.findById(id)
         user.email = email
         user.name = name
-        if(req.file){
+        const data = {
 
-            let avatar ={
-                publicId:req.file.filename,
-                url:req.file.url
-            }
-            user.avatar=avatar
+            user: { _id: id, name, email, }
         }
-        await user.save()
-        return res.status(200).json({message:"Sucessfully saved"})
+
+
+
+
+        if (req.file) {
+            await cloudinary.uploader.destroy(user.publicId).catch(e => { })
+            let avatar = {
+                publicId: req.file.filename,
+                url: req.file.url
+            }
+
+            user.avatar = avatar
+        }
+
+        const result = await user.save()
+        const authtoken=jwt.sign(data,process.env.JWT_SECRET)
+        return res.status(200).json({ result ,authtoken})
 
     }
     catch (e) {
-        return res.status(500).json({error:'internal server error'})
+        return res.status(500).json({ error: 'internal server error' })
     }
 })
 
