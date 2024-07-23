@@ -103,9 +103,10 @@ router.post('/login', [body('email', 'Enter valid email').isEmail()
 router.put('/savechanges', verifyToken, upload.single('image'), async (req, res) => {
     try {
         const { id, name, email } = req.body
-        const user = await User.findById(id)
-        user.email = email
-        user.name = name
+        const people = await User.findById(id)
+        people.email = email
+        people.name = name
+        let user
         const data = {
 
             user: { id, name, email, }
@@ -115,16 +116,16 @@ router.put('/savechanges', verifyToken, upload.single('image'), async (req, res)
 
 
         if (req.file) {
-            await cloudinary.uploader.destroy(user.avatar.publicId).catch(e => { })
+            await cloudinary.uploader.destroy(people.avatar.publicId).catch(e => { })
             let avatar = {
                 publicId: req.file.filename,
                 url: req.file.path
             }
 
-            user.avatar = avatar
+            people.avatar = avatar
         }
 
-        const result = await user.save()
+        const result = await people.save()
         const authtoken=jwt.sign(data,process.env.JWT_SECRET)
         return res.status(200).json({ result ,authtoken})
 
