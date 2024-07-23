@@ -115,10 +115,10 @@ router.put('/savechanges', verifyToken, upload.single('image'), async (req, res)
 
 
         if (req.file) {
-            await cloudinary.uploader.destroy(user.publicId).catch(e => { })
+            await cloudinary.uploader.destroy(user.avatar.publicId).catch(e => { })
             let avatar = {
                 publicId: req.file.filename,
-                url: req.file.url
+                url: req.file.path
             }
 
             user.avatar = avatar
@@ -126,7 +126,7 @@ router.put('/savechanges', verifyToken, upload.single('image'), async (req, res)
 
         const result = await user.save()
         const authtoken=jwt.sign(data,process.env.JWT_SECRET)
-        return res.status(200).json({ result ,'authtoken':authtoken})
+        return res.status(200).json({ result ,authtoken})
 
     }
     catch (e) {
